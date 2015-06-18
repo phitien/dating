@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import dating.model.*;
 
 public class Customer {
-	public static ArrayList<dating.model.Customer> customers;
+	public static ArrayList<dating.model.Customer> customers = new ArrayList<dating.model.Customer>();
 
 	public static ArrayList<dating.model.Customer> getAllCustomers() {
 		return customers;
@@ -13,11 +13,21 @@ public class Customer {
 
 	public static ArrayList<dating.model.Advertiser> getAllAdvertisers() {
 		ArrayList<dating.model.Advertiser> result = new ArrayList<dating.model.Advertiser>();
+		for (dating.model.Customer customer : customers) {
+			if (customer instanceof dating.model.Advertiser) {
+				result.add((Advertiser) customer);
+			}
+		}
 		return result;
 	}
 
 	public static ArrayList<dating.model.Responder> getAllResponders() {
 		ArrayList<dating.model.Responder> result = new ArrayList<dating.model.Responder>();
+		for (dating.model.Customer customer : customers) {
+			if (customer instanceof dating.model.Responder) {
+				result.add((Responder) customer);
+			}
+		}
 		return result;
 	}
 
@@ -33,7 +43,7 @@ public class Customer {
 		return result;
 	}
 
-	public static dating.model.Customer createAdvertiser() {
+	public static dating.model.Advertiser createAdvertiser() {
 		Advertiser customer = new Advertiser();
 		Customer.customers.add(customer);
 		return customer;

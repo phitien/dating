@@ -1,8 +1,8 @@
 package dating.util;
 
 public class FloatRange {
-	public int from = -1;
-	public int to = -1;
+	public float from = -1;
+	public float to = -1;
 
 	public boolean isValid() {
 		return (from > 0 && to < 0)// only set the value of from
