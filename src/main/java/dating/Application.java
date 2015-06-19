@@ -17,9 +17,7 @@ public class Application {
 
 	public enum APP_STATE {
 		DASHBOARD, SHOW_CUSTOMERS, //
-		ADDING_ADVERTISER, ADDING_RESPONDER, REMOVING_CUSTOMER, SHOWING_CUSTOMER_DETAIL, //
-		SHOW_ADVERTISER_MESSAGES, READING_ADVERTISER_MESSAGE, REMOVING_ADVERTISER_MESSAGE, //
-		SHOW_MATCHING_ADVERTISERS_FOR_RESPONDER, SENDING_RESPONDER_MESSAGE_TO_ADVERTISER
+		ADDING_CUSTOMER, REMOVING_CUSTOMER, SHOWING_CUSTOMER_DETAIL //
 	}
 
 	public static APP_STATE state = APP_STATE.DASHBOARD;
@@ -37,83 +35,107 @@ public class Application {
 	}
 
 	public static void setupMaps() {
-		actionsMap.put("0", APP_STATE.DASHBOARD);
+		actionsMap.put("-1", APP_STATE.DASHBOARD);
 		actionsMap.put("1", APP_STATE.SHOW_CUSTOMERS);
-		actionsMap.put("2", APP_STATE.ADDING_ADVERTISER);
-		actionsMap.put("3", APP_STATE.ADDING_RESPONDER);
-		actionsMap.put("4", APP_STATE.REMOVING_CUSTOMER);
-		actionsMap.put("5", APP_STATE.SHOWING_CUSTOMER_DETAIL);
-		actionsMap.put("6", APP_STATE.SHOW_ADVERTISER_MESSAGES);
-		actionsMap.put("7", APP_STATE.READING_ADVERTISER_MESSAGE);
-		actionsMap.put("8", APP_STATE.REMOVING_ADVERTISER_MESSAGE);
-		actionsMap.put("9", APP_STATE.SHOW_MATCHING_ADVERTISERS_FOR_RESPONDER);
-		actionsMap.put("10", APP_STATE.SENDING_RESPONDER_MESSAGE_TO_ADVERTISER);
+		actionsMap.put("2", APP_STATE.ADDING_CUSTOMER);
+		actionsMap.put("3", APP_STATE.REMOVING_CUSTOMER);
+		actionsMap.put("4", APP_STATE.SHOWING_CUSTOMER_DETAIL);
 	}
 
 	public static void printInstruction() throws IOException {
-		// Runtime.getRuntime().exec("clear");
 		System.out.println("Please choose one option below:");
 		switch (state) {
 		case SHOW_CUSTOMERS:
 		case DASHBOARD:
-		default:
 			if (Customer.customers.size() > 0) {
 				System.out.println("1. Print customers");
 			}
-			System.out.println("2. Add an advertiser");
-			System.out.println("3. Add a responder");
+			System.out.println("2. Add a customer");
 			if (Customer.customers.size() > 0) {
-				System.out.println("4. Remove a customer");
-				System.out.println("5. Show customer's detail");
+				System.out.println("3. Remove a customer");
+				System.out.println("4. Show customer's detail");
 			}
 			break;
+		default:
+			break;
 		}
-		System.out.println("0. Dashboard");
+		System.out.println("-1. Dashboard");
+	}
+
+	public static void reset() throws IOException {
+		setState("0");
+		printInstruction();
+	}
+
+	private static String readParam(BufferedReader bufferedReader)
+			throws IOException {
+		return bufferedReader.readLine().trim();
 	}
 
 	public static void process(BufferedReader bufferedReader)
 			throws IOException {
-		String input = bufferedReader.readLine().trim();
+		String input = readParam(bufferedReader);
 		setState(input);
 		printInstruction();
 		switch (state) {
 		case SHOW_CUSTOMERS:
-			printCustomers(Customer.getAllCustomers());
+			printCustomers(bufferedReader);
 			break;
-		case ADDING_ADVERTISER:
-			createAdvertiser(bufferedReader);
-			break;
-		case ADDING_RESPONDER:
-			createResponder(bufferedReader);
+		case ADDING_CUSTOMER:
+			createCustomer(bufferedReader);
 			break;
 		case REMOVING_CUSTOMER:
+			removeCustomer(bufferedReader);
 			break;
 		case SHOWING_CUSTOMER_DETAIL:
 			showCustomerDetail(bufferedReader);
 			break;
-		case SHOW_ADVERTISER_MESSAGES:
-			break;
-		case READING_ADVERTISER_MESSAGE:
-			break;
-		case REMOVING_ADVERTISER_MESSAGE:
-			break;
-		case SHOW_MATCHING_ADVERTISERS_FOR_RESPONDER:
-			break;
-		case SENDING_RESPONDER_MESSAGE_TO_ADVERTISER:
-			break;
 		case DASHBOARD:
 		default:
 			break;
+		}
+	}
+
+	private static void removeCustomer(BufferedReader bufferedReader) {
+		if (Customer.customers.size() > 0) {
+			while (true) {
+				try {
+					System.out
+							.println("Please enter customer index you want to delete:");
+					String input = readParam(bufferedReader);
+					if (input.equalsIgnoreCase("-1")) {
+						reset();
+						break;
+					}
+					int idx = Integer.parseInt(input);
+					if (idx >= 0 && idx < Customer.customers.size()) {
+						Customer.customers.remove(idx);
+						reset();
+						break;
+					} else {
+						System.out.println("There is no customer of the index "
+								+ idx);
+						reset();
+						break;
+					}
+				} catch (Exception e) {
+				}
+			}
 		}
 	}
 
 	private static void showCustomerDetail(BufferedReader bufferedReader) {
 		if (Customer.customers.size() > 0) {
 			while (true) {
-				System.out.println("Please enter customer index:");
 				try {
-					int idx = Integer
-							.parseInt(bufferedReader.readLine().trim());
+					System.out
+							.println("Please enter customer index you want to see:");
+					String input = readParam(bufferedReader);
+					if (input.equalsIgnoreCase("-1")) {
+						reset();
+						break;
+					}
+					int idx = Integer.parseInt(input);
 					if (idx >= 0 && idx < Customer.customers.size()) {
 						selectedCustomerIndex = idx;
 						dating.model.Customer customer = Customer.customers
@@ -139,25 +161,40 @@ public class Application {
 		dating.model.Responder responder = Customer.createResponder();
 		while (true) {
 			System.out.println("Please enter username:");
-			String username = bufferedReader.readLine().trim();
-			if (username != "") {
-				responder.username = username;
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(responder);
+				reset();
+				break;
+			}
+			if (input != "") {
+				responder.username = input;
 				break;
 			}
 		}
 		while (true) {
 			System.out.println("Please enter password:");
-			String password = bufferedReader.readLine().trim();
-			if (password != "") {
-				responder.password = password;
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(responder);
+				reset();
+				break;
+			}
+			if (input != "") {
+				responder.password = input;
 				break;
 			}
 		}
 		while (true) {
 			System.out
 					.println("Please enter gender:0 for female, not 0 for male:");
-			String gender = bufferedReader.readLine().trim();
-			if (gender.equalsIgnoreCase("0")) {
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(responder);
+				reset();
+				break;
+			}
+			if (input.equalsIgnoreCase("0")) {
 				responder.gender = Gender.FEMALE;
 			} else {
 				responder.gender = Gender.MALE;
@@ -166,9 +203,14 @@ public class Application {
 		}
 		while (true) {
 			System.out.println("Please enter age:");
-			String age = bufferedReader.readLine().trim();
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(responder);
+				reset();
+				break;
+			}
 			try {
-				responder.age = Float.parseFloat(age);
+				responder.age = Float.parseFloat(input);
 				if (responder.age > 0 && responder.age < 200) {
 					break;
 				}
@@ -178,8 +220,13 @@ public class Application {
 		while (true) {
 			System.out.println("Please enter income range: from-to");
 			responder.incomeRange = new IncomeRange();
-			String incomeRange = bufferedReader.readLine().trim();
-			String[] range = incomeRange.split("-");
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(responder);
+				reset();
+				break;
+			}
+			String[] range = input.split("-");
 			if (range.length == 1) {
 				try {
 					responder.incomeRange.from = (int) Float
@@ -196,6 +243,35 @@ public class Application {
 			}
 			break;
 		}
+		reset();
+	}
+
+	private static void createCustomer(BufferedReader bufferedReader)
+			throws IOException {
+		System.out.println("Which customer you want to create:");
+		System.out.println("1. Advertiser");
+		System.out.println("2. Customer");
+		while (true) {
+			try {
+				String input = readParam(bufferedReader);
+				if (input.equalsIgnoreCase("-1")) {
+					reset();
+					break;
+				}
+				int idx = Integer.parseInt(input);
+				if (idx == 1) {
+					createAdvertiser(bufferedReader);
+					break;
+				} else if (idx == 2) {
+					createResponder(bufferedReader);
+					break;
+				}
+			} catch (Exception e) {
+				System.out.println("Which customer you want to create:");
+				System.out.println("1. Advertiser");
+				System.out.println("2. Customer");
+			}
+		}
 	}
 
 	private static void createAdvertiser(BufferedReader bufferedReader)
@@ -203,25 +279,40 @@ public class Application {
 		dating.model.Advertiser advertiser = Customer.createAdvertiser();
 		while (true) {
 			System.out.println("Please enter username:");
-			String username = bufferedReader.readLine().trim();
-			if (username != "") {
-				advertiser.username = username;
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			if (input != "") {
+				advertiser.username = input;
 				break;
 			}
 		}
 		while (true) {
 			System.out.println("Please enter password:");
-			String password = bufferedReader.readLine().trim();
-			if (password != "") {
-				advertiser.password = password;
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			if (input != "") {
+				advertiser.password = input;
 				break;
 			}
 		}
 		while (true) {
 			System.out
 					.println("Please enter gender:0 for female, not 0 for male:");
-			String gender = bufferedReader.readLine().trim();
-			if (gender.equalsIgnoreCase("0")) {
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			if (input.equalsIgnoreCase("0")) {
 				advertiser.gender = Gender.FEMALE;
 			} else {
 				advertiser.gender = Gender.MALE;
@@ -230,9 +321,14 @@ public class Application {
 		}
 		while (true) {
 			System.out.println("Please enter age:");
-			String age = bufferedReader.readLine().trim();
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
 			try {
-				advertiser.age = Float.parseFloat(age);
+				advertiser.age = Float.parseFloat(input);
 				if (advertiser.age > 0 && advertiser.age < 200) {
 					break;
 				}
@@ -242,8 +338,13 @@ public class Application {
 		while (true) {
 			System.out.println("Please enter income range: from-to");
 			advertiser.incomeRange = new IncomeRange();
-			String incomeRange = bufferedReader.readLine().trim();
-			String[] range = incomeRange.split("-");
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			String[] range = input.split("-");
 			if (range.length == 1) {
 				try {
 					advertiser.incomeRange.from = (int) Float
@@ -263,16 +364,26 @@ public class Application {
 		}
 		while (true) {
 			System.out.println("Please enter some advert text:");
-			String advertText = bufferedReader.readLine().trim();
-			advertiser.advertText = advertText;
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			advertiser.advertText = input;
 			break;
 		}
 		advertiser.partnerCriteria = new PartnerCriteria();
 		while (true) {
 			System.out
 					.println("Please enter partner gender:0 for female, not 0 for male:");
-			String gender = bufferedReader.readLine().trim();
-			if (gender.equalsIgnoreCase("0")) {
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			if (input.equalsIgnoreCase("0")) {
 				advertiser.partnerCriteria.gender = Gender.FEMALE;
 			} else {
 				advertiser.partnerCriteria.gender = Gender.MALE;
@@ -282,8 +393,13 @@ public class Application {
 		while (true) {
 			System.out.println("Please enter partner age range: from-to");
 			advertiser.partnerCriteria.ageRange = new AgeRange();
-			String ageRange = bufferedReader.readLine().trim();
-			String[] range = ageRange.split("-");
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			String[] range = input.split("-");
 			if (range.length == 1) {
 				try {
 					advertiser.partnerCriteria.ageRange.from = (int) Float
@@ -304,8 +420,13 @@ public class Application {
 		while (true) {
 			System.out.println("Please enter partner income range: from-to");
 			advertiser.partnerCriteria.incomeRange = new IncomeRange();
-			String incomeRange = bufferedReader.readLine().trim();
-			String[] range = incomeRange.split("-");
+			String input = readParam(bufferedReader);
+			if (input.equalsIgnoreCase("-1")) {
+				Customer.customers.remove(advertiser);
+				reset();
+				break;
+			}
+			String[] range = input.split("-");
 			if (range.length == 1) {
 				try {
 					advertiser.partnerCriteria.incomeRange.from = (int) Float
@@ -323,6 +444,7 @@ public class Application {
 			}
 			break;
 		}
+		reset();
 	}
 
 	public static void setState(String newState) {
@@ -333,19 +455,47 @@ public class Application {
 		}
 	}
 
-	public static void printCustomers(ArrayList<?> customers) {
-		if (customers.size() <= 0) {
+	public static void printCustomers(BufferedReader bufferedReader) {
+		if (Customer.customers.size() <= 0) {
 			System.out.println("There is no customer.");
 			return;
 		}
-		int i = 0;
-		for (Object object : customers) {
-			if (object instanceof dating.model.Advertiser) {
-				printAdvertiser(i, (dating.model.Advertiser) object);
-			} else if (object instanceof dating.model.Responder) {
-				printResponder(i, (dating.model.Responder) object);
+		System.out.println("Please choose one:");
+		System.out.println("1. Print all");
+		System.out.println("2. Print advertisers");
+		System.out.println("3. Print responders");
+		while (true) {
+			try {
+				String input = readParam(bufferedReader);
+				if (input.equalsIgnoreCase("-1")) {
+					reset();
+					break;
+				}
+				int idx = Integer.parseInt(input);
+				int i = 0;
+				for (Object object : Customer.customers) {
+					if (idx == 1) {
+						if (object instanceof dating.model.Advertiser) {
+							printAdvertiser(i, (dating.model.Advertiser) object);
+						} else if (object instanceof dating.model.Responder) {
+							printResponder(i, (dating.model.Responder) object);
+						}
+					} else if (idx == 2
+							&& object instanceof dating.model.Advertiser) {
+						printAdvertiser(i, (dating.model.Advertiser) object);
+					} else if (idx == 3
+							&& object instanceof dating.model.Responder) {
+						printResponder(i, (dating.model.Responder) object);
+					}
+					i++;
+				}
+				break;
+			} catch (Exception e) {
+				System.out.println("Please choose one:");
+				System.out.println("1. Print all");
+				System.out.println("2. Print advertisers");
+				System.out.println("3. Print responders");
 			}
-			i++;
 		}
 	}
 
