@@ -1,7 +1,5 @@
-package dating.util;
+package dating.model;
 
-import dating.model.Responder;
-import dating.model.Customer.Gender;
 
 public class PartnerCriteria {
 	public Gender gender = Gender.MALE;

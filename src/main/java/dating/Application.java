@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import dating.model.Customer.Gender;
+import dating.model.AgeRange;
+import dating.model.IncomeRange;
 import dating.model.Message;
+import dating.model.PartnerCriteria;
 import dating.service.Customer;
-import dating.util.AgeRange;
-import dating.util.IncomeRange;
-import dating.util.PartnerCriteria;
 
 public class Application {
 

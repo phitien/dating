@@ -1,4 +1,4 @@
-package dating.model;
+package dating.util;
 
 public interface Model {
 

@@ -1,6 +1,7 @@
 package dating.model;
 
-import dating.util.IncomeRange;
+import dating.util.Model;
+
 
 public abstract class Customer implements Model {
 
